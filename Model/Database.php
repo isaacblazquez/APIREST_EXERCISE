@@ -15,7 +15,6 @@ class Database
         }			
     }
 
-
     public function select($query = "" , $params = [])
     {
         try {
@@ -31,9 +30,7 @@ class Database
 
     public function delete($query = "" , $params = [])
     {
-        var_dump($query);
-        var_dump($params);
-
+    
         try {
             $stmt = $this->executeDeleteStatement( $query , $params );
          
@@ -43,7 +40,6 @@ class Database
         }
         return false;
     }
-
 
     public function update($query = "" , $params = [])
     {
@@ -56,6 +52,47 @@ class Database
         }
         return false;
     }
+
+    public function insert($query = "" , $params = [])
+    {
+        try {
+            $stmt = $this->executeInsertStatement( $query , $params );
+            return $stmt;
+        } catch(Exception $e) {
+            throw New Exception( $e->getMessage() );
+        }
+        return false;
+    }
+
+    private function executeInsertStatement($query = "" , $params = [])
+    {
+        try {
+            $stmt = $this->connection->prepare( $query );
+            if($stmt === false) {
+                throw New Exception("Unable to do prepared statement: " . $query);
+            }
+            if( $params ) {
+                $stmt->bind_param($params[0], $params[1], $params[2],$params[3]);
+            }
+
+            if ($stmt->execute()) {
+                $response = array(
+                    'status' => 'success',
+                    'message' => 'Usuario insertado exitosamente'
+                );
+            } else {
+                $response = array(
+                    'status' => 'error',
+                    'message' => 'Error al Insertado el usuario: ' . $conn->error
+                );
+            }
+            return ($response);
+
+        } catch(Exception $e) {
+            throw New Exception( $e->getMessage() );
+        }
+    }
+
 
     private function executeUpdateStatement($query = "" , $params = [])
     {
